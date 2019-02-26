@@ -1,0 +1,42 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<polymer-element name="ss-notes" flex layout vertical>
+
+	<template layout vertical>
+		<style>
+			:host{
+				display: block;
+				height: 100%;
+				width: 100%;
+			}
+			#editArea{
+				box-sizing: border-box;
+				padding: 10px;
+				line-height: 1.6;
+				font-family: arial;
+				color: #333;
+				font-size: 14px;
+				height: 100%;
+			}
+			
+			#editArea:focus{
+				outline: 0px;
+			}
+			
+			:host(.transcript) #editArea{
+				font-family: consolas, monospace;
+			}
+			
+			
+		</style>	
+			<div flex contentEditable id = 'editArea'>	
+			</div>
+	</template>
+	<script>
+		Polymer({	
+			appendText : function(text){
+				this.$.editArea.appendChild(document.createTextNode(text));
+			}
+		});
+	</script>
+</polymer-element>

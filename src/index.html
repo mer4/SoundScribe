@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta name="viewport"  content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=no">
+  <script src="bower_components/webcomponentsjs/webcomponents.js"> </script>  
+  
+  <link rel="import" href="bower_components/polymer/polymer.html">
+    <link rel="import" href="bower_components/core-icons/core-icons.html">
+    <link rel="import" href="bower_components/core-icon-button/core-icon-button.html">
+  <link rel="import" href="elements/ss-notes.html">
+  <link rel="import" href="elements/ss-panel.html">
+  <link rel="import" href="elements/ss-toolbar.html">
+  <link rel="import" href="elements/ss-recognizer.html">
+  <link rel="import" href="elements/ss-ribbon-button.html">
+  <link rel="import" href="elements/ss-audio-visualizer.html">
+  
+  <link rel="stylesheet" href="style.css">
+
+  <title>SoundScribe</title>
+  </head>
+  <body layout vertical>
+	 <template is='auto-binding'>
+		 <div layout horizontal id = 'header'>
+			<!-- <ss-ribbon-button toggle icon="autorenew">Toggle</ss-ribbon-button> -->
+			<ss-ribbon-button on-tap='{{refresh}}' icon="autorenew">Reset</ss-ribbon-button>
+			<ss-ribbon-button on-tap='{{refresh}}' icon="autorenew">Open</ss-ribbon-button>
+			<ss-ribbon-button on-tap='{{refresh}}' icon="autorenew">Save</ss-ribbon-button>
+			<ss-ribbon-button on-tap='{{refresh}}' icon="autorenew">Settings</ss-ribbon-button>
+		</div>
+		 <div flex layout horizontal>
+			<ss-panel flex title = 'Transcriber'>
+				<ss-recognizer id='recognizer' delimiter='. ' on-recognize='{{recog}}'></ss-recognizer>
+				<ss-toolbar>
+					<core-icon-button on-click='{{toggleRecognizer}}' active?='{{$.recognizer.recording}}' icon="settings-voice"></core-icon-button>
+				</ss-toolbar>
+				<ss-notes flex id='transcript' class='transcript'>
+				
+				</ss-notes>
+				<ss-audio-visualizer>
+				
+				</ss-audio-visualizer>
+			</ss-panel>
+			
+			<ss-panel flex title = 'Notes' color = '#67e'>
+				<ss-toolbar>
+					<input placeholder='Note Title'/>
+				</ss-toolbar>
+				<ss-notes flex>
+				</ss-notes>
+			</ss-panel>
+		 </div>
+	 
+		<script>
+			var template = document.querySelector('template');
+			var remote = require('remote');
+			var currentWindow = remote.getCurrentWindow();	
+
+			document.onkeypress = function(event){
+				if(event.keyCode == 9)
+					currentWindow.openDevTools();
+			}
+
+			template.refresh = function(){
+				location.reload();
+			}
+			
+			template.toggleRecognizer = function(){template.$.recognizer.toggle()};
+			
+			template.recog = function(event, words){
+				if([].concat(words.match(/[\n\.\!\?]/g))[0])
+					template.$.transcript.appendText(words);
+				else
+					template.$.transcript.appendText(' ' + words);
+			}
+		
+		</script>
+	 </template>
+  </body>
+</html>

@@ -1,0 +1,49 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
+
+<polymer-element name="ss-panel" justified layout vertical attributes='title color'>
+
+	<template >
+		<style>
+			:host{
+				margin: 30px;
+				padding: 0px;
+				background-color: #fff;
+				display: block;
+				box-shadow: 1px 2px 5px rgba(0,0,0,.33), 0px 0px 10px rgba(0,0,0,.1);
+			}
+			
+		
+			
+			#holder{
+				
+				width: 100%;
+				height: 100%;
+			}
+			
+			#header{
+				height: auto;
+				width: 100%;
+				background: #e76;
+				color: rgba(255,255,255,.8);
+				padding: 10px 0px 10px 6px;
+				box-sizing: border-box;
+				font-family: Arial;
+				font-size: 20px;
+			}
+			
+		</style>
+		
+	
+		<div id='holder' flex layout vertical>
+			<div style='background-color: {{color}}' id ='header'>{{title}}</div>
+			<content flex layout vertical></content>
+		</div>
+		
+	</template>	
+	<script>
+		Polymer({ 
+			color : '#e76'
+		});
+	</script>
+</polymer-element>

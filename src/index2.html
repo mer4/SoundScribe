@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta name="viewport"  content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=no">
+  <script src="bower_components/webcomponentsjs/webcomponents.js"> </script>  
+  
+  <link rel="import" href="bower_components/polymer/polymer.html">
+    <link rel="import" href="bower_components/core-icons/core-icons.html">
+    <link rel="import" href="bower_components/paper-item/paper-item.html">
+    <link rel="import" href="bower_components/core-animation/core-animation.html">
+    <link rel="import" href="bower_components/font-roboto/roboto.html">
+    <link rel="import" href="bower_components/core-animation/core-animation-group.html">
+    <link rel="import" href="bower_components/core-icon-button/core-icon-button.html">
+    <link rel="import" href="bower_components/paper-button/paper-button.html">
+    <link rel="import" href="bower_components/core-collapse/core-collapse.html">
+	<link rel='import' href='elements/ss-title-input.html'>
+	<link rel='import' href='elements/ss-audio-visualizer.html'>
+	<link rel='import' href='elements/ss-recognizer.html'>
+	<link rel='import' href='elements/ss-editor/ss-editor.html'>
+			<link href='fonts/aleo.css' rel='stylesheet' type='text/css'>
+
+  <title>SoundScribe</title>
+  
+  <style>
+  body, html{
+	height: 100%;
+	width: 100%;
+	padding: 0px;
+	margin: 0px;
+	background: #E1E6ED;
+	overflow: hidden;
+	perspective-origin: 50% 90%;
+	perspective: 1000px;
+}
+
+	#toggleRecord{
+		position: absolute;
+		top: 15px;
+		right: 20px;
+		height: 20px;
+		width: 20px;
+		border-radius: 10px;
+		background-color: #521;
+		display: block;
+		transition: background-color .3s;
+		cursor: pointer;
+	}
+	
+	#toggleRecord.recording{
+		background-color: #f42;
+	}
+	
+	
+	#drawer{	
+		height: 100vh;
+		width: auto;
+	}
+	
+	#drawerContent{
+		width: 15vw;
+		min-width: 200px;
+		max-width: 400px;
+		height: 100%;
+		background-color: white;
+		box-shadow: 1px 0px 4px rgba(0,0,0,.5);
+		margin-right: 10px;
+	}
+	
+	.drawerHeader{
+		font-family: RobotoDraft;
+		font-weight: 200;
+		color: white;
+		
+		height: auto;
+		font-size: 2em;
+		text-align: center;
+		padding: 20px;
+		background-color: #D84D5C;
+		box-sizing: border-box;
+	}
+	
+	.drawerSection{
+		height: auto;
+		font-family: RobotoDraft;
+		padding: 14px 0px 11px 12px;
+		font-weight: bold;
+		border: 1px solid #ccc;
+		border-width: 1px 0px 0px 0px;
+	}
+	
+	paper-item{
+		font-family: RobotoDraft;
+		padding-left: 10px;
+	}
+
+	
+	.top{background-color: #3ec7cc;min-height: 0px;}
+	.bottom{background-color: #0f9ba3;}
+
+	#logo{
+		display: block;
+		margin:auto;
+		margin-top: calc(-100px + 10vh);
+		height: auto;
+		width: 80vmin;
+		max-width: 800px;
+	}
+	paper-button{
+		position: absolute;
+		bottom: 50%;
+		margin: auto;
+		margin-bottom: -30px;
+
+		left: 50%;
+		margin-left: -95px;
+		font-family: Arial;
+		font-weight: bold;
+		color: #0c8f93;
+		font-size: 20px;
+		padding: 5px 20px;
+	}
+	#text{
+	  position: absolute;
+	  width: 100%;
+	  margin: auto;
+	  overflow: hidden;
+	  /* margin-top: 50px; */
+	  top: calc(50% + 100px);
+	  margin: auto;
+	}
+	
+	#text p {
+		color: rgba(255,255,255,.6);
+		font-size: calc(10px + 1.2vh);
+		width: 600px;
+		max-width: 80%;
+		min-width: 40%;
+		margin: auto;
+		text-indent: 4%;
+		font-family: Segoe UI light;
+		line-height: calc(14px + 1.1vh);
+	}
+	
+	div.panel{
+		background-color:#eafaf0;
+		box-shadow: 0px 1px 8px rgba(0,0,0,.7);
+		transform: translate(0,1000px);
+		
+		margin: 10px;
+		top: 150px;
+	}
+	
+	div.divider{
+		background-color: #acb;
+		width: 1px;
+		height: 100%;
+		/* position: relative; */
+		/* top: 0px; */
+		float: right;
+		margin: 0px 0px;
+		/* margin-right: 100px; */
+		right: 50px;
+	}
+	
+	#header{
+		 margin-left: 10px;
+	}
+
+	h2{
+		color: #2f403c;
+		margin: 10px 20px;
+		font-family: 'aleoregular';
+	}	
+
+	
+	#menu{
+		position:absolute;
+		  border-top: 1px dotted #3C9B97;
+		  border-bottom: 1px dotted #3C9B97;
+		  outline:2px solid #3ec7cc;
+		width:100%;
+		height:50px;
+		z-index: 100;
+		background-color: #3ec7cc;
+		transform-origin: 0 0;
+		top: 100px;
+		
+		transform: rotateX(120deg);
+		transition: transform .3s, background-color .3s, width .3s;
+	}
+
+	.transcript{
+		font-family: monospace;
+		border: 1px solid #aaa;
+		border-width: 1px 0px 0px 0px;
+	}
+
+
+
+	
+	#topHalf{
+		z-index: 120;
+	}
+  </style>
+  
+  </head>
+  <body layout vertical>
+	<core-animation></core-animation>
+	
+	 <template is='auto-binding'>	 
+		<div id = 'text'>
+			<p>
+				SoundScribe is a currently in-development program designed to help students take notes by using speech recognition to automatically write down what a lecturer is saying. This allows the note taker to focus on adding higher-level thought and commentary on what is being said, as opposed to being focused on purely transcribing the material.
+			</p>
+		</div>
+		
+		 <div id='topHalf'flex class='top'>
+			<table id='header'>	
+			<tr><td rowspan='2'><core-icon-button on-tap='{{toggleMenu}}' id='menuButton' icon="menu" style='transform:translate(0,-200px);color: white; margin-right: 20px'></core-icon-button></td><td>
+
+					<ss-title-input placeholder='Note Title' style='transform:translate(-300px,0)'>Note Title</ss-title-input></td></tr><tr><td>
+					<ss-title-input placeholder='Note Book' style='transform:translate(-300px,0)'>Note Book</ss-title-input></td>
+			</table>
+
+			<img id='logo' class = 'title' src='images/logo1.png'/>
+				<paper-button id='button' on-tap='{{start}}' style='background-color:white' raised>Start Now</paper-button>
+		</div>
+		<div flex layout horizontal class = 'bottom'>
+			<core-collapse horizontal id='drawer' duration='.5'>
+				<div id='drawerContent'>
+					<div class='drawerHeader'>Settings</div>
+					<div class='drawerSection'>File</div>
+						<paper-item>Open</paper-item>
+						<paper-item>Save</paper-item>
+						<paper-item>Save As</paper-item>
+						<paper-item>Options</paper-item>
+					<div class='drawerSection'>Cloud</div>
+						<paper-item>Google Drive</paper-item>
+						<paper-item>Dropbox</paper-item>
+						<paper-item>Trello</paper-item>	
+					<div class='drawerSection'>Manage</div>
+						<paper-item>Note Books</paper-item>
+						<paper-item>Account</paper-item>
+						<paper-item>About</paper-item>
+
+				</div>
+			</core-collapse>				
+			<div layout horizontal flex>
+				<div class='panel' fill flex layout vertical id='leftPanel'>
+					<h2>Transcript <span id='toggleRecord' on-tap="{{toggleRecord}}" class='{{recording?"recording":""}}'></span> </h2>
+					
+					<div flex class='transcript'>
+						{{transcript}}
+					</div>
+			
+					<ss-audio-visualizer self-end id='waveform'>
+					</ss-audio-visualizer>
+					
+					<ss-recognizer id='recognizer' delimiter='. ' on-recognize='{{recog}}'></ss-recognizer>
+				</div>
+					
+				<div layout vertical fill flex class='panel' id='rightPanel'>
+					<h2>Notes</h2>
+					<ss-editor flex></ss-editor>
+				</div>
+			</div >
+		 </core-drawer-panel>
+		<script>
+			template = document.querySelector('template');
+			console.log(template);
+	
+			template.menuOpen = false;
+			template.toggleMenu = function(){			
+				this.$.drawer.toggle();
+			};
+			template.start = function(){
+			//	this.$.drawer.closeDrawer();
+			
+			
+				var moveTop = [{transform:'translate(0,0)'},{transform:'translate(0,-600px)'}];
+				
+				var easing = {duration:400, delay:00, easing: 'ease-in', fill: 'forwards'};
+				var animation = new AnimationSequence([
+					new Animation(template.$.logo, moveTop, easing),
+					new Animation(template.$.button, moveTop, easing),
+					new Animation(template.$.text,  [
+						{transform:'translate(0,0)'},
+						{transform:'translate(0,900px)'}], easing),
+					new Animation(template.$.topHalf,
+						[{'max-height': '50%'},
+						 {'max-height':'100px'}], {duration:400, delay:0, easing: 'ease-in-out', fill:'forwards'}),
+					new Animation(template.$.leftPanel, [
+						{'transform' : 'translate(0,1000px)'},
+						{'transform' : 'translate(0,-0px)'}],{duration:400, delay: 100, easing: 'ease-out', fill:'forwards'}),
+					new Animation(template.$.rightPanel, [
+						{'transform' : 'translate(0,1000px)'},
+						{'transform' : 'translate(0,-0px)'}],{duration:400, delay: 50, easing: 'ease-out', fill:'forwards'}),	
+					new Animation(document.querySelector('ss-title-input'), [
+						{'transform' : 'translate(-200px,0)'},
+						{'transform' : 'translate(0px,0)'}],{duration:400, delay: 120, easing: 'ease-out', fill:'forwards'}),
+					new Animation(document.querySelectorAll('ss-title-input')[1], [
+						{'transform' : 'translate(-200px,0)'},
+						{'transform' : 'translate(0px,0)'}],{duration:400, delay: 80, easing: 'ease-out', fill:'forwards'}),	
+					new Animation(template.$.menuButton, [
+						{'transform' : 'translate(0,-200px)'},
+						{'transform' : 'translate(0,0px)'}],{duration:300, delay: 100, easing: 'ease-out', fill:'forwards'})
+				//,	new Animation(template.$.menu, [
+				//		{'transform' : 'rotateX(120deg)'},
+				//		{'transform' : 'rotateX(50deg)' },
+				//		{'transform' : 'rotateX(0deg)'}],
+				//			
+				//		{duration:700, delay: 100, easing: 'ease-in-out', fill:'forwards'}),
+					
+					
+				]);
+				
+				animation.children.forEach(function(e,i){
+					e._timingInput.delay += i*120;				
+					console.log(e.timing.delay);
+					document.timeline.play(e);
+				});
+				
+				//delete old stuff.
+				setTimeout(function(){
+					console.log('cleaning garbage');
+					template.$.text.remove();
+					template.$.logo.remove();
+					template.$.button.remove();
+				
+					template.$.waveform.init();
+					template.$.waveform.toggle();
+				
+				
+				}, 2000);
+				console.log(animation);
+			}
+			template.transcript = '';	
+			
+			template.recording = false;
+			template.toggleRecord = function(){
+				this.$.recognizer.toggle();
+				this.recording = !this.recording;
+			}
+			template.recog = function(e, words){
+				if([].concat(words.match(/[\.\n\!\?]/g))[0])
+					template.transcript += words;
+				else
+					template.transcript += ' ' + words;
+			}
+		</script>
+		
+	</template>
+	</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

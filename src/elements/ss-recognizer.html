@@ -1,0 +1,81 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<polymer-element name="ss-recognizer" layout vertical attributes='delimiter recording language autostart'>
+
+	<template>
+		
+	</template>	
+	
+	<script>
+
+	Polymer({
+		language : 'en-US',
+		delimiter : '.\n',
+		recognizer : new webkitSpeechRecognition(),
+		recording : false,
+		ready : function(){	
+		
+			var recognizer = this.recognizer;
+			
+			recognizer.continuous = true;			
+			recognizer.interimResults = true;
+			
+		
+			this.matchedIndex = 0;
+			
+			capitalize = function(string)
+			{
+				return string.charAt(0).toUpperCase() + string.slice(1);
+			}
+
+
+			recognizer.onresult = function(event) {			
+			   var tempScript = '';
+			
+				for (var i = event.resultIndex; i < event.results.length; ++i) {
+				  if (event.results[i].isFinal) {
+					tempScript += event.results[i][0].transcript;
+					this.matchedIndex = 0;
+					this.currentScript = [];
+					console.log('completed.');
+					this.fire('recognize', this.delimiter);
+					return;
+				  } else {
+					tempScript += event.results[i][0].transcript;
+				  }
+				}
+				tempScript = tempScript.trim();
+				console.log(tempScript);
+				this.currentScript = tempScript.split(' ');
+				
+				setTimeout(function(lastScript){
+					for(var i = this.matchedIndex; i < lastScript.length; i++){
+						if(lastScript[i] == this.currentScript[i]){
+							this.matchedIndex++;
+							console.log(this.matchedIndex);
+							if(this.matchedIndex == 1)
+								lastScript[i] = capitalize(lastScript[i]);
+							this.fire('recognize', lastScript[i]);
+						}
+					
+					}				
+				}.bind(this, tempScript.split(' ')), 500);
+				
+
+			}.bind(this);
+		},
+		toggle : function(){
+				if(!this.recording){
+					console.log('Starting recognizer engine!');
+					this.recognizer.start();
+					this.recording = true;
+				}else{
+					console.log('Stopping recognizer engine!');
+					this.recognizer.stop();
+					this.recording = false;				
+				}
+			}
+	});
+		
+	</script>
+</polymer-element>
